@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="bin2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/VitamiaLibrary/bin/initactivity.jar!/" />
+      <root url="jar://$PROJECT_DIR$/VitamiaLibrary/bin/vitamialibrary.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

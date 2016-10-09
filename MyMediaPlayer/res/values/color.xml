@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="green">#5CB292</color>
+    <color name="trans_green">#885CB292</color>
+    <color name="trans_white">#88ffffff</color>
+    <color name="trans_white2">#33ffffff</color>
+    <color name="progressbar_blue">#2E9BF6</color>
+</resources>

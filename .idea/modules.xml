@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/MyMediaPlayer/MyMediaPlayer.iml" filepath="$PROJECT_DIR$/MyMediaPlayer/MyMediaPlayer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NineOldAndroidsLibrary/NineOldAndroidsLibrary1.iml" filepath="$PROJECT_DIR$/NineOldAndroidsLibrary/NineOldAndroidsLibrary1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/VitamiaLibrary/VitamiaLibrary.iml" filepath="$PROJECT_DIR$/VitamiaLibrary/VitamiaLibrary.iml" />
+    </modules>
+  </component>
+</project>

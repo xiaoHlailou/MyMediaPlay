@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/base_bg"
+    android:orientation="vertical">
+
+    <include layout="@layout/title_bar" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/iv_vision"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/vision_anim" />
+
+        <TextView
+            android:id="@+id/tv_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:text="fdsafsa"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="fdsafdsafdsaf"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_play_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginRight="5dp"
+        android:text="00:00/00:00"
+        android:textColor="@android:color/white"
+        android:textSize="14sp" />
+
+    <SeekBar
+        android:id="@+id/sb_audio"
+        style="@style/MediaController_SeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="4dp"
+        android:layout_marginLeft="4dp"
+        android:max="100"
+        android:maxHeight="3dp"
+        android:minHeight="3dp"
+        android:thumb="@drawable/audio_seek_thumb"
+        android:progressDrawable="@drawable/progress_horizontal_audio"
+        android:indeterminate="false" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <View style="@style/placeholder" />
+
+        <Button
+            android:id="@+id/btn_play_mode"
+            android:background="@drawable/selector_btn_exit_audio"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+
+        <View style="@style/placeholder" />
+
+        <Button
+            android:id="@+id/btn_pre"
+            android:background="@drawable/selector_btn_pre_audio"
+            android:layout_width="55dp"
+            android:layout_height="55dp" />
+
+        <View style="@style/placeholder" />
+
+        <Button
+            android:id="@+id/btn_play"
+            android:background="@drawable/selector_btn_play_audio"
+            android:layout_width="55dp"
+            android:layout_height="55dp" />
+
+        <View style="@style/placeholder" />
+
+        <Button
+            android:id="@+id/btn_next"
+            android:background="@drawable/selector_btn_next_audio"
+            android:layout_width="55dp"
+            android:layout_height="55dp" />
+
+        <View style="@style/placeholder" />
+
+        <Button
+            android:background="@drawable/selector_btn_list_audio"
+            android:layout_width="55dp"
+            android:layout_height="55dp" />
+
+        <View style="@style/placeholder" />
+
+    </LinearLayout>
+
+</LinearLayout>

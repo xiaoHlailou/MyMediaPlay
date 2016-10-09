@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="bin1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/NineOldAndroidsLibrary/bin/nineoldandroidslibrary.jar!/" />
+      <root url="jar://$PROJECT_DIR$/NineOldAndroidsLibrary/bin/library.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
