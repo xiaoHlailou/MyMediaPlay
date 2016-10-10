@@ -72,6 +72,7 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
     private SeekBar sb_audio;
     private ImageView iv_vision;
     private Button btn_play_mode;
+    private CharSequence duration;
 
 
     @Override
@@ -85,9 +86,13 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
 
     /** 开启服务 */
     private void connectService(ArrayList<AudioItem> audioItems, int position) {
+        LogUtils.i("www","bindService");
+
         Intent service = new Intent(this, AudioPlayService.class);
         service.putExtra(Keys.ITEM_LIST, audioItems);
         service.putExtra(Keys.CURRENT_POSITION, position);
+        //如果点击标题栏ll_root，service传过来what，接收后再传到service的startCommend
+        service.putExtra(Keys.NOTIFICATION_WHAT,getIntent().getIntExtra(Keys.NOTIFICATION_WHAT,-1));
         startService(service);
         //服务连接成功  binder是service的handler
         //服务断开
@@ -146,6 +151,7 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
                 pre();
                 break;
             case R.id.btn_next:
+                LogUtils.i("www","next,Activity");
                 next();
                 break;
             case R.id.btn_play_mode:
@@ -185,6 +191,7 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
 
     /** 播放下一首 */
     private void next() {
+        LogUtils.i("www","nextA");
         playService.next();
     }
 
@@ -230,6 +237,8 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
         tv_title.setText(item.getTitle());
         tv_artist.setText(item.getArtist());
         sb_audio.setMax(playService.getDuration());
+
+        duration = Utils.formatMillis(playService.getDuration());
         updatePlayTime();
         updatePlayModeBtnBg(playService.getCurrentPlayMode());
     }
@@ -237,7 +246,7 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
     /** 更新播放时间 */
     private void updatePlayTime() {
         CharSequence currentPosition= Utils.formatMillis(playService.getCurrentPosition());
-        CharSequence duration= Utils.formatMillis(playService.getDuration());
+
         tv_play_time.setText(currentPosition+"/"+duration);
         sb_audio.setProgress(playService.getCurrentPosition());
         handler.sendEmptyMessageDelayed(UPDATE_PLAY_TIME, 300);

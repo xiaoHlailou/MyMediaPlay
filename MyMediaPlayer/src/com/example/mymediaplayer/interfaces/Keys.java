@@ -9,4 +9,5 @@ public interface Keys {
     String ITEM_LIST ="itemList" ;
     String CURRENT_POSITION = "currentPosition";
     String CURRENT_PLAY_MODE = "currentPlayMode";
+    String NOTIFICATION_WHAT = "notificationWhat";
 }

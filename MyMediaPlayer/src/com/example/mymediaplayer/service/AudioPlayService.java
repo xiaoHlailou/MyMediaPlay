@@ -1,6 +1,10 @@
 package com.example.mymediaplayer.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
@@ -11,7 +15,11 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.widget.RemoteViews;
 
+import com.example.mymediaplayer.R;
+import com.example.mymediaplayer.activity.AudioPlayerActivity;
 import com.example.mymediaplayer.bean.AudioItem;
 import com.example.mymediaplayer.interfaces.IPlayService;
 import com.example.mymediaplayer.interfaces.IUi;
@@ -25,6 +33,16 @@ import java.util.Random;
  * Created by hjz on 2016/10/6.
  */
 public class AudioPlayService extends Service implements IPlayService {
+
+    /**
+     * 通知栏常量
+     */
+    int notificationId = 1;
+    private static final int NOTIFICATION_PRE = 1;
+    private static final int NOTIFICATION_NEXT = 2;
+    private static final int NOTIFICATION_ENTER = 3;
+    private NotificationManager notificationManager;
+
     /**
      * UI接口
      */
@@ -34,8 +52,11 @@ public class AudioPlayService extends Service implements IPlayService {
      */
     public static final int PLAY_SERVICE_INTERFACE = 1;
 
-    public static int NO_OPEN_AUDIO = 1;
+    /**
+     * open为-1，不打开（listview或消息蓝点同一首歌）为1 不执行openAudio()
+     */
     public int openAudioFlag;
+    public static int NO_OPEN_AUDIO = 1;
 
     /**
      * 播放模式:顺序播放
@@ -94,6 +115,7 @@ public class AudioPlayService extends Service implements IPlayService {
     @Override
     public void onCreate() {
         super.onCreate();
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         random = new Random();
         LogUtils.i(AudioPlayService.this, "onCreate");
@@ -102,19 +124,32 @@ public class AudioPlayService extends Service implements IPlayService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LogUtils.i(AudioPlayService.this, "onStartCommand");
+        currentPlayMode = sp.getInt(Keys.CURRENT_PLAY_MODE, PLAY_MODE_ORDER);
 
-        openAudioFlag = -1;
-        audioItems = (ArrayList<AudioItem>) intent.getSerializableExtra(Keys.ITEM_LIST);
-        int currentPositionTemp = intent.getIntExtra(Keys.CURRENT_POSITION, -1);
-        if (currentPositionTemp == currentPosition && isPlaying()) {
+        openAudioFlag = -1;//重置
+        int notificationWhat = intent.getIntExtra(Keys.NOTIFICATION_WHAT, -1);
+        switch (notificationWhat) {
+            case NOTIFICATION_PRE:
+                pre();
+                break;
+            case NOTIFICATION_NEXT:
+                next();
+                break;
+            case NOTIFICATION_ENTER:
+                openAudioFlag = NO_OPEN_AUDIO;
+                break;
+            default:    //不是Notification点进来   是从列表点进来
+                audioItems = (ArrayList<AudioItem>) intent.getSerializableExtra(Keys.ITEM_LIST);
+                int currentPositionTemp = intent.getIntExtra(Keys.CURRENT_POSITION, -1);
+                if (currentPositionTemp == currentPosition && isPlaying()) {
 //            if (!isPlaying()) {
 //                mMediaPlayer.start();
 //            }
-            openAudioFlag = NO_OPEN_AUDIO;
+                    openAudioFlag = NO_OPEN_AUDIO;
+                }
+                currentPosition = currentPositionTemp;
+                break;
         }
-        currentPosition = currentPositionTemp;
-        currentPlayMode = sp.getInt(Keys.CURRENT_PLAY_MODE, PLAY_MODE_ORDER);
-
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -134,7 +169,7 @@ public class AudioPlayService extends Service implements IPlayService {
         i.putExtra("command", "pause");
         sendBroadcast(i);
 
-        release();
+        release();//销毁mMediaPlayer
 
         try {
             mMediaPlayer = new MediaPlayer();
@@ -189,6 +224,7 @@ public class AudioPlayService extends Service implements IPlayService {
     public void start() {
         LogUtils.i(this, "start");
         if (mMediaPlayer != null) {
+            sendNotification();
             mMediaPlayer.start();
         }
     }
@@ -197,6 +233,7 @@ public class AudioPlayService extends Service implements IPlayService {
     public void pause() {
         LogUtils.i(this, "pause");
         if (mMediaPlayer != null) {
+            notificationManager.cancel(notificationId);
             mMediaPlayer.pause();
         }
     }
@@ -222,12 +259,13 @@ public class AudioPlayService extends Service implements IPlayService {
 
     @Override
     public void next() {
+        LogUtils.i("www","next");
         switch (currentPlayMode) {
             case PLAY_MODE_ORDER:
-                if (currentPosition != audioItems.size() - 1) {
+                if (currentPosition != audioItems.size()-1) {
                     currentPosition++;
                 } else {
-                    currentPosition=0;
+                    currentPosition = 0;
                 }
                 break;
             case PLAY_MODE_RANDOM:
@@ -255,7 +293,8 @@ public class AudioPlayService extends Service implements IPlayService {
     }
 
     @Override
-    public int getDuration() {
+    public int getDuration() {//一直被调用
+        LogUtils.i("www","getduration");
         if (mMediaPlayer != null) {
             return mMediaPlayer.getDuration();
         }
@@ -301,12 +340,82 @@ public class AudioPlayService extends Service implements IPlayService {
         }
     };
 
-    /** 播放结束监听器 */
-    MediaPlayer.OnCompletionListener mCompletionListener=new MediaPlayer.OnCompletionListener() {
+    /**
+     * 播放结束监听器
+     */
+    MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
             next();
         }
     };
+
+    public void sendNotification() {
+        // 一闪而过的小图标和文本
+        int icon = R.drawable.icon_notification;
+        CharSequence tickerText = "当前正在播放：" + currentAudioItem.getTitle();
+        long when = System.currentTimeMillis();
+
+        // 通知栏的东西
+        CharSequence contentTitle = currentAudioItem.getTitle();
+        CharSequence contentText = currentAudioItem.getArtist();
+        PendingIntent pendingIntent = getActivityPendingIntent(NOTIFICATION_ENTER);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                this);
+        builder.setSmallIcon(icon)
+                .setTicker(tickerText)
+                .setWhen(when)
+                .setContentText(contentTitle)   //适配Content低版本
+                .setContentTitle(contentText)   //适配Content低版本
+                .setContentIntent(pendingIntent)//适配Content低版本
+                .setContent(getRemoteViews());// 这个方法在3.0之后才显示 Content高版本
+
+        Notification notification = builder.build();
+        notification.flags=Notification.FLAG_ONGOING_EVENT;
+        notificationManager.notify(notificationId, notification);
+
+    }
+
+    /**
+     * 高版本自定义通知栏
+     *
+     * @return
+     */
+    private RemoteViews getRemoteViews() {
+        RemoteViews remoteViews = new RemoteViews(getPackageName(),
+                R.layout.notification);
+
+        remoteViews.setTextViewText(R.id.tv_title, currentAudioItem.getTitle());
+        remoteViews.setTextViewText(R.id.tv_artist, currentAudioItem.getArtist());
+        remoteViews.setOnClickPendingIntent(R.id.btn_pre,
+                getServicePendingIntent(NOTIFICATION_PRE));
+        remoteViews.setOnClickPendingIntent(R.id.btn_next,
+                getServicePendingIntent(NOTIFICATION_NEXT));
+        remoteViews.setOnClickPendingIntent(R.id.ll_root,
+                getActivityPendingIntent(NOTIFICATION_ENTER));
+
+        return remoteViews;
+    }
+
+    private PendingIntent getActivityPendingIntent(int requestCode) {
+        LogUtils.i("www","getActivityPending");
+        Intent intent = new Intent(this, AudioPlayerActivity.class);
+        intent.putExtra(Keys.NOTIFICATION_WHAT, requestCode);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                requestCode, intent, flags);
+        return pendingIntent;
+    }
+
+    private PendingIntent getServicePendingIntent(int requestCode) {
+        LogUtils.i("www","getServicePending");
+        Intent intent = new Intent(this, AudioPlayService.class);
+        intent.putExtra(Keys.NOTIFICATION_WHAT, requestCode);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        PendingIntent pendingIntent = PendingIntent.getService(this,
+                requestCode, intent, flags);
+        return pendingIntent;
+    }
 
 }

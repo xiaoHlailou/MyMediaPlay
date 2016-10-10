@@ -4,5 +4,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="title_bar_height">55dp</dimen>
+    <dimen name="default_lyric_size">15sp</dimen>
+    <dimen name="hignlight_lyric_size">18sp</dimen>
 
 </resources>
