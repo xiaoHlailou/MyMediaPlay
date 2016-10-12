@@ -3,7 +3,7 @@ package com.example.mymediaplayer.bean;
 /**
  * Created by hjz on 2016/10/10.
  */
-public class LyricItem {
+public class LyricItem implements Comparable<LyricItem> {
 
     private long startShowTime;
     private String text;
@@ -36,4 +36,9 @@ public class LyricItem {
                 ", text='" + text + '\'' +
                 '}';
     }
+
+	public int compareTo(LyricItem o) {
+		return Long.valueOf(startShowTime).compareTo(o.startShowTime);
+	}
+
 }

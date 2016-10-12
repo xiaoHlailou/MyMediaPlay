@@ -24,6 +24,7 @@ import com.example.mymediaplayer.interfaces.Keys;
 import com.example.mymediaplayer.service.AudioPlayService;
 import com.example.mymediaplayer.utils.LogUtils;
 import com.example.mymediaplayer.utils.Utils;
+import com.example.mymediaplayer.view.LyricView;
 
 import java.util.ArrayList;
 
@@ -73,6 +74,7 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
     private ImageView iv_vision;
     private Button btn_play_mode;
     private CharSequence duration;
+    private LyricView lyric_view;
 
 
     @Override
@@ -136,6 +138,7 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
         sb_audio = findView(R.id.sb_audio);
         iv_vision = findView(R.id.iv_vision);
         btn_play_mode = findView(R.id.btn_play_mode);
+        lyric_view = findView(R.id.lyric_view);
         //加载帧动画
         AnimationDrawable anim= (AnimationDrawable) iv_vision.getBackground();
         anim.start();
@@ -237,6 +240,7 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
         tv_title.setText(item.getTitle());
         tv_artist.setText(item.getArtist());
         sb_audio.setMax(playService.getDuration());
+        lyric_view.setMusicPath(item.getPath());
 
         duration = Utils.formatMillis(playService.getDuration());
         updatePlayTime();
@@ -245,11 +249,14 @@ public class AudioPlayerActivity extends BaseActivity implements IUi{
 
     /** 更新播放时间 */
     private void updatePlayTime() {
-        CharSequence currentPosition= Utils.formatMillis(playService.getCurrentPosition());
+        int position=playService.getCurrentPosition();
+        CharSequence currentPosition= Utils.formatMillis(position);
 
         tv_play_time.setText(currentPosition+"/"+duration);
         sb_audio.setProgress(playService.getCurrentPosition());
-        handler.sendEmptyMessageDelayed(UPDATE_PLAY_TIME, 300);
+        lyric_view.setCurrentPosition(position);
+
+        handler.sendEmptyMessageDelayed(UPDATE_PLAY_TIME, 30);
     }
 
     @Override
